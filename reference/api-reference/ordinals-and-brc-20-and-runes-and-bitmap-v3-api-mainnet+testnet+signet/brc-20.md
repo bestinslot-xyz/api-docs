@@ -878,7 +878,7 @@ Sample query: https://api.bestinslot.xyz/v3/brc20/wallet\_activity?order=asc\&of
 
 ## Get BRC-20 Activity on Block
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/brc20/activity_on_block`
 
@@ -947,7 +947,7 @@ Sample query: https://api.bestinslot.xyz/v3/brc20/activity\_on\_block?block\_hei
 
 ## Get BRC-20 Balance on Block
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/brc20/balance_on_block`
 
@@ -1030,7 +1030,7 @@ Sample query: https://api.bestinslot.xyz/v3/brc20/balance\_on\_block?block\_heig
 
 ## Get BRC-20 Balance on Block Batch
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:green;">`POST`</mark> `https://api.bestinslot.xyz/v3/brc20/batch_balance_on_block`
 
@@ -1094,7 +1094,7 @@ headers: \
 
 ## Get BRC-20 All Valid Tx Notes
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/brc20/all_validtxnotes`
 
@@ -1133,7 +1133,7 @@ Sample query: https://api.bestinslot.xyz/v3/brc20/all\_validtxnotes
 
 ## Get BRC-20 All Balances
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/brc20/all_balances`
 

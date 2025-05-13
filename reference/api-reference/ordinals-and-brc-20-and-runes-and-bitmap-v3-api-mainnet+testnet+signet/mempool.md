@@ -358,7 +358,7 @@ Sample query: https://api.bestinslot.xyz/v3/mempool/all\_ordinal\_utxos
 
 ## Get All Runic UTXOs in Mempool
 
-_<mark style="color:blue;">Included in: Pro, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Dedicated</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/mempool/all_runic_utxos`
 
@@ -403,7 +403,7 @@ Sample query: https://api.bestinslot.xyz/v3/mempool/all\_runic\_utxos
 
 ## Get All Runes Events in Mempool
 
-_<mark style="color:blue;">Included in: Pro, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Dedicated</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/mempool/all_runes_events`
 

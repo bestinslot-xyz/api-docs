@@ -250,7 +250,7 @@ Sample query: https://api.bestinslot.xyz/v3/inscription/render\_refresh?inscript
 {% endtab %}
 {% endtabs %}
 
-##
+
 
 ## Get Inscription Activity
 
@@ -361,7 +361,7 @@ Sample query: https://api.bestinslot.xyz/v3/inscription/in\_transaction?tx\_id=5
 
 ## Get Inscription Activity in Block
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/inscription/activity_on_block`
 
@@ -423,7 +423,7 @@ https://api.bestinslot.xyz/v3/inscription/activity\_on\_block?block\_height=8023
 
 ## Get New Inscriptions in Block
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/inscription/new_inscriptions_in_block`
 

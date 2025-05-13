@@ -1073,7 +1073,7 @@ Sample query: https://api.bestinslot.xyz/v3/runes/historical\_total\_supply?rune
 
 ## Runes All Activity on Block Height
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/runes/activity_on_block`
 
@@ -1156,7 +1156,7 @@ Sample query: https://api.bestinslot.xyz/v3/runes/activity\_on\_block?block\_hei
 
 ## Runes All ID Name Pairs
 
-_<mark style="color:blue;">Included in: Enterprise, Dedicated</mark>_
+_<mark style="color:blue;">Included in: Enterprise, Dedicated with Enterprise Endpoints</mark>_
 
 <mark style="color:blue;">`GET`</mark> `https://api.bestinslot.xyz/v3/runes/all_id_name_pairs`
 
