@@ -1,0 +1,251 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot Sats Names API
+  description: API endpoints related to Sats Names
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+  - url: https://testnet.api.bestinslot.xyz/v3
+    description: Testnet server
+  - url: https://signet_api.bestinslot.xyz/v3
+    description: Signet server
+paths:
+  /sats/validity_check:
+    get:
+      summary: Sats Validity Check
+      description: Returns validity details about a specific inscription.
+      operationId: getSatsValidityCheck
+      tags:
+        - Sats Names
+      parameters:
+        - name: inscription_id
+          in: query
+          description: inscription id
+          required: true
+          schema:
+            type: string
+            example: "8ca50ea8ed42bf9b1b2dad8df4fddb1d354769b32d240e2d5a788ee78ef2bab0i0"
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      sats_name:
+                        type: string
+                        description: Sats name
+                        example: "penguins.sats"
+                      original_id:
+                        type: string
+                        description: Original inscription ID
+                        example: "b8cd5daeb8859410c4cc01d88bfa5afe6c508713882af7099b45b5d583c270d7i0"
+                      is_valid:
+                        type: boolean
+                        description: Whether the inscription is valid
+                        example: false
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795034
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+
+  /sats/forward_lookup:
+    get:
+      summary: Sats Forward Lookup
+      description: Returns address from a sats name.
+      operationId: getSatsForwardLookup
+      tags:
+        - Sats Names
+      parameters:
+        - name: sats_name
+          in: query
+          description: sats name
+          required: true
+          schema:
+            type: string
+            example: "penguins.sats"
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      wallet:
+                        type: string
+                        description: Bitcoin wallet address
+                        example: "bc1prjglj0tcff20fe4rkwlfj6rjpgjgp3c9k252gsrwysmc7uuk9dcqm40l8k"
+                      bis_url:
+                        type: string
+                        description: BestInSlot URL for the wallet
+                        example: "https://bestinslot.xyz/bc1prjglj0tcff20fe4rkwlfj6rjpgjgp3c9k252gsrwysmc7uuk9dcqm40l8k"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795034
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+
+  /sats/reverse_lookup:
+    get:
+      summary: Sats Reverse Lookup
+      description: Returns valid sats name with minimum inscription number from a bitcoin wallet address.
+      operationId: getSatsReverseLookup
+      tags:
+        - Sats Names
+      parameters:
+        - name: address
+          in: query
+          description: bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: "bc1prjglj0tcff20fe4rkwlfj6rjpgjgp3c9k252gsrwysmc7uuk9dcqm40l8k"
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Sats name
+                        example: "cindi.sats"
+                      bis_url:
+                        type: string
+                        description: BestInSlot URL for the name
+                        example: "https://bestinslot.xyz/cindi.sats"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795034
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+
+  /sats/activity:
+    get:
+      summary: Get Sats Activity
+      description: Returns ordered list of inscribes, sales and transfers of all sats.
+      operationId: getSatsActivity
+      tags:
+        - Sats Names
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [ts]
+            example: ts
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+            example: 100
+        - name: activity_filter
+          in: query
+          description: Filter for activity type
+          required: true
+          schema:
+            type: integer
+            description: 1 -> inscribed, 2 -> transferred, 4 -> sold, combine with OR operator (e.g. sold & transferred = 2 | 4 = 6)
+            example: 7
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "04a5e6e80d49eae28b6da1185eae2566acf438f52957ca214a262ff1a398d469i0"
+                        from_wallet:
+                          type: string
+                          description: Sender wallet address
+                          example: "bc1qzfcrcx5xtsc25dkzls9smmr45fztfpwyznnmzh"
+                        to_wallet:
+                          type: string
+                          description: Receiver wallet address
+                          example: "bc1pnvfmyadyqy6ggdhqaktm7crs3tgpnvadc9rnt973axfr6twend6qexd5qz"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 801580
+                        sale_price:
+                          type: integer
+                          description: Sale price in satoshis
+                          example: 3531
+                        new_satpoint:
+                          type: string
+                          description: New satpoint
+                          example: "a54d450288ae6ea1165ea02ac3e60b69d56b172ea9fb77ab2011b15cbeb6eeb3:1:0"
+                        ts:
+                          type: string
+                          format: date-time
+                          description: Timestamp
+                          example: "2023-08-04T01:10:16.000Z"
+                        marketplace_type:
+                          type: string
+                          description: Marketplace
+                          example: "magiceden"
+                        tx_id:
+                          type: string
+                          description: Transaction ID
+                          example: "a54d450288ae6ea1165ea02ac3e60b69d56b172ea9fb77ab2011b15cbeb6eeb3"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 801585
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key 

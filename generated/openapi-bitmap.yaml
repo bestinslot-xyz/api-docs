@@ -1,0 +1,576 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot Bitmap API
+  description: API endpoints related to Bitmap
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+  - url: https://testnet.api.bestinslot.xyz/v3
+    description: Testnet server
+  - url: https://signet_api.bestinslot.xyz/v3
+    description: Signet server
+paths:
+  /bitmap/holders:
+    get:
+      summary: Get Bitmap Holders
+      description: Returns an array with holder information. Each entry has a wallet address and collected inscription ids.
+      operationId: getBitmapHolders
+      tags:
+        - Bitmap
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: false
+          schema:
+            type: string
+            enum: [wallet_addr]
+            default: wallet_addr
+        - name: order
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: count
+          in: query
+          description: Number of records to return
+          required: false
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        wallet:
+                          type: string
+                          description: Wallet address
+                          example: "12ufzRLA89ZyLPTe6HCUnVGRtdNfr8tYXp"
+                        inscription_ids:
+                          type: array
+                          description: Array of inscription IDs
+                          items:
+                            type: string
+                          example: ["5e7989591908aa5e1874545518b4b2d9ccfbde83f40a94340cc5fbd5d923b981i0"]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795035
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+          
+  /bitmap/inscriptions:
+    get:
+      summary: Get Bitmap Inscriptions
+      description: Returns ordered list of bitmap inscriptions. Note that last_sale_price is only available on Pro Tier.
+      operationId: getBitmapInscriptions
+      tags:
+        - Bitmap
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [inscr_num]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bitmap_number:
+                          type: integer
+                          description: Bitmap number
+                          example: 0
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "86539aff946c437af8088955827b7e6ff48fc6192836d4071b697b5359b7a732i0"
+                        inscription_number:
+                          type: integer
+                          description: Inscription number
+                          example: 10423123
+                        owner_wallet_addr:
+                          type: string
+                          description: Owner wallet address
+                          example: "bc1p7hf8x2q2zal4v64c2h34qheyz4zk8zgnv767ygkkrd5dhg9zackq4rmvhd"
+                        last_transfer_block_height:
+                          type: integer
+                          description: Block height of last transfer
+                          example: 792435
+                        genesis_height:
+                          type: integer
+                          description: Genesis block height
+                          example: 792435
+                        last_sale_price:
+                          type: integer
+                          nullable: true
+                          description: Last sale price (Pro Tier only)
+                          example: null
+                        content_url:
+                          type: string
+                          description: URL to content
+                          example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/86539aff946c437af8088955827b7e6ff48fc6192836d4071b697b5359b7a732i0"
+                        bis_url:
+                          type: string
+                          description: URL to BestInSlot page
+                          example: "https://bestinslot.xyz/ordinals/inscription/86539aff946c437af8088955827b7e6ff48fc6192836d4071b697b5359b7a732i0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 799055
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+          
+  /bitmap/sales_info:
+    get:
+      summary: Get Bitmap Sales Information
+      description: Returns sales and volume information about bitmaps.
+      operationId: getBitmapSalesInfo
+      tags:
+        - Bitmap
+      parameters:
+        - name: marketplace_type
+          in: query
+          description: Optional parameter to filter only by a given marketplace
+          required: false
+          schema:
+            type: string
+            example: "magiceden"
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      vol_3h:
+                        type: string
+                        description: Volume in last 3 hours
+                        example: "5582294"
+                      vol_6h:
+                        type: string
+                        description: Volume in last 6 hours
+                        example: "21472011"
+                      vol_9h:
+                        type: string
+                        description: Volume in last 9 hours
+                        example: "34006304"
+                      vol_12h:
+                        type: string
+                        description: Volume in last 12 hours
+                        example: "36548463"
+                      vol_1d:
+                        type: string
+                        description: Volume in last day
+                        example: "51050633"
+                      vol_3d:
+                        type: string
+                        description: Volume in last 3 days
+                        example: "91950108"
+                      vol_7d:
+                        type: string
+                        description: Volume in last 7 days
+                        example: "165391876"
+                      vol_30d:
+                        type: string
+                        description: Volume in last 30 days
+                        example: "755204897"
+                      vol_total:
+                        type: string
+                        description: Total volume
+                        example: "9207676876"
+                      sale_count:
+                        type: integer
+                        description: Total number of sales
+                        example: 137473
+                      marketplace:
+                        type: string
+                        description: Marketplace filter
+                        example: "all"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 814057
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /bitmap/market_info:
+    get:
+      summary: Get Bitmap Market Information
+      description: Returns market information like marketcap, listed count, floor price about bitmaps.
+      operationId: getBitmapMarketInfo
+      tags:
+        - Bitmap
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      listed_count:
+                        type: integer
+                        description: Number of listed bitmaps
+                        example: 31279
+                      floor_price:
+                        type: integer
+                        description: Floor price across all marketplaces
+                        example: 73344
+                      floor_price_ordswap:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Ordswap
+                        example: null
+                      floor_price_magiceden:
+                        type: integer
+                        description: Floor price on Magic Eden
+                        example: 79560
+                      floor_price_ordinalswallet:
+                        type: integer
+                        description: Floor price on Ordinals Wallet
+                        example: 73344
+                      floor_price_gammaio:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Gamma.io
+                        example: null
+                      floor_price_ordynals:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Ordynals
+                        example: null
+                      floor_price_unisat:
+                        type: integer
+                        description: Floor price on Unisat
+                        example: 75375
+                      floor_price_ordinalsmarket:
+                        type: integer
+                        description: Floor price on Ordinals Market
+                        example: 15000000
+                      floor_price_okx:
+                        type: integer
+                        description: Floor price on OKX
+                        example: 76000
+                      supply:
+                        type: integer
+                        description: Total supply
+                        example: 849818
+                      marketcap:
+                        type: integer
+                        description: Market capitalization
+                        example: 62329051392
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 849817
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /bitmap/listings:
+    get:
+      summary: Get Bitmap Listings
+      description: Returns ordered list of listings of bitmaps.
+      operationId: getBitmapListings
+      tags:
+        - Bitmap
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [min_price, ordswap_price, magiceden_price, ordinalswallet_price, gammaio_price, odynals_price, unisat_price, ordinalsmarket_price, okx_price]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "013dcd2c02ff459aa240a9e3a09d6e0203c9332a3ad691be7297bcb62d635cb4i0"
+                        min_price:
+                          type: integer
+                          description: Minimum price across all marketplaces
+                          example: 30000
+                        ordswap_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Ordswap
+                          example: null
+                        magiceden_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Magic Eden
+                          example: null
+                        ordinalswallet_price:
+                          type: integer
+                          description: Price on Ordinals Wallet
+                          example: 30000
+                        gammaio_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Gamma.io
+                          example: null
+                        nostr_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Nostr
+                          example: null
+                        odynals_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Odynals
+                          example: null
+                        unisat_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Unisat
+                          example: null
+                        ordinalsmarket_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Ordinals Market
+                          example: null
+                        okx_price:
+                          type: integer
+                          nullable: true
+                          description: Price on OKX
+                          example: null
+                        owner_wallet_addr:
+                          type: string
+                          description: Owner wallet address
+                          example: "bc1p28m2g5rvyjjc2a625thtsv7snv4gpqv9ens5vz5kftx2smhzjn5qawq0fy"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 803265
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /bitmap/activity:
+    get:
+      summary: Get Bitmap Activity
+      description: Returns ordered list of inscribes, sales and transfers of bitmaps.
+      operationId: getBitmapActivity
+      tags:
+        - Bitmap
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [ts]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+        - name: activity_filter
+          in: query
+          description: Filter for activity types (1=inscribed, 2=transferred, 4=sold, combine with OR operator)
+          required: true
+          schema:
+            type: integer
+            example: 7
+        - name: last_new_satpoint
+          in: query
+          description: Use this with offset 0 to continue from a known transfer
+          required: false
+          schema:
+            type: string
+            example: "cc9f10dda7c6e03637ed8205f33067f6d0b20520bb082f500ea33edd5a10ebc5:2:0"
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "10490d6e63cdced2810011dcbb0952e26ca7a7bc609167487b76f567306dbfd5i0"
+                        from_wallet:
+                          type: string
+                          description: Source wallet address
+                          example: "bc1pn4zg6zwk256tlhgkxlj2jn6khnrtuynafw9cz6lrp6wvgmywkmusn6m8xd"
+                        to_wallet:
+                          type: string
+                          description: Destination wallet address
+                          example: "bc1p4kdgatpw9sdawnjzt206yyu33uhxnfpnv476td8m0tt8rznnvxkqk49rvh"
+                        block_height:
+                          type: integer
+                          description: Block height of the activity
+                          example: 814057
+                        sale_price:
+                          type: integer
+                          description: Sale price (if activity is a sale)
+                          example: 21242
+                        new_satpoint:
+                          type: string
+                          description: New satpoint reference
+                          example: "31226b1ea0acc7a46ff7b1a86745e88dab759deaf50836b62d044d5f17801bad:1:0"
+                        ts:
+                          type: string
+                          format: date-time
+                          description: Timestamp of the activity
+                          example: "2023-10-27T11:47:28.000Z"
+                        marketplace_type:
+                          type: string
+                          description: Type of marketplace for the activity
+                          example: "magiceden"
+                        tx_id:
+                          type: string
+                          description: Transaction ID
+                          example: "31226b1ea0acc7a46ff7b1a86745e88dab759deaf50836b62d044d5f17801bad"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795035
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: API key for authentication. Required for all endpoints, different tiers (Basic, Pro, Dedicated) have access to different endpoints.
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Bitmap
+    description: Endpoints related to Bitmap 

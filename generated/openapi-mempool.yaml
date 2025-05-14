@@ -1,0 +1,850 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot Mempool API
+  description: API endpoints related to Bitcoin Mempool & UTXOs
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+  - url: https://testnet.api.bestinslot.xyz/v3
+    description: Testnet server
+  - url: https://signet_api.bestinslot.xyz/v3
+    description: Signet server
+paths:
+  /mempool/all_utxos_of_wallet:
+    get:
+      summary: Get All UTXOs of Bitcoin Wallet
+      description: Returns all UTXOs of a given wallet with inscription and runes information. Note that unconfirmed UTXOs block_height is returned as null.
+      operationId: getAllUtxosOfWallet
+      tags:
+        - Mempool
+      parameters:
+        - name: wallet_addr
+          in: query
+          description: Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 0
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: 803100
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 9109
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001465fe7b3cdc7c1762d34b900da053920e96d25d55"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          nullable: true
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: ["b3521d61a5cfdb80c4957cf7e4ce6c7f3e263b8baba05c787f003f17cacef97bi0"]
+                        satpoints:
+                          type: array
+                          nullable: true
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: ["f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446:0:0"]
+                        rune_ids:
+                          type: array
+                          nullable: true
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: null
+                        amounts:
+                          type: array
+                          nullable: true
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: null
+                        txfee:
+                          type: string
+                          nullable: true
+                          description: Transaction fee
+                          example: null
+                        vsize:
+                          type: integer
+                          nullable: true
+                          description: Virtual size
+                          example: null
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446:0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 863641
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/cardinal_utxos_of_wallet:
+    get:
+      summary: Get Cardinal UTXOs of Bitcoin Wallet
+      description: Returns cardinal UTXOs of a given wallet. Note that unconfirmed UTXOs block_height is returned as null.
+      operationId: getCardinalUtxosOfWallet
+      tags:
+        - Mempool
+      parameters:
+        - name: wallet_addr
+          in: query
+          description: Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "c04e49f6393a571b95f711038746ea78ba673e0a0a2a71be7daccefe6143b154"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 3
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: 863642
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 61150
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001465fe7b3cdc7c1762d34b900da053920e96d25d55"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          nullable: true
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: null
+                        satpoints:
+                          type: array
+                          nullable: true
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: null
+                        rune_ids:
+                          type: array
+                          nullable: true
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: null
+                        amounts:
+                          type: array
+                          nullable: true
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: null
+                        txfee:
+                          type: string
+                          nullable: true
+                          description: Transaction fee
+                          example: null
+                        vsize:
+                          type: integer
+                          nullable: true
+                          description: Virtual size
+                          example: null
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "c04e49f6393a571b95f711038746ea78ba673e0a0a2a71be7daccefe6143b154:3"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 863642
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/ordinal_utxos_of_wallet:
+    get:
+      summary: Get Ordinal UTXOs of Bitcoin Wallet
+      description: Returns ordinal UTXOs of a given wallet with inscription. Note that unconfirmed UTXOs block_height is returned as null.
+      operationId: getOrdinalUtxosOfWallet
+      tags:
+        - Mempool
+      parameters:
+        - name: wallet_addr
+          in: query
+          description: Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 0
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: 803100
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 9109
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001465fe7b3cdc7c1762d34b900da053920e96d25d55"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: ["b3521d61a5cfdb80c4957cf7e4ce6c7f3e263b8baba05c787f003f17cacef97bi0"]
+                        satpoints:
+                          type: array
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: ["f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446:0:0"]
+                        rune_ids:
+                          type: array
+                          nullable: true
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: null
+                        amounts:
+                          type: array
+                          nullable: true
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: null
+                        txfee:
+                          type: string
+                          nullable: true
+                          description: Transaction fee
+                          example: null
+                        vsize:
+                          type: integer
+                          nullable: true
+                          description: Virtual size
+                          example: null
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "f48fd528ecb4c32252a6b0ad4bcd07123ad0c583fb808f9bdd04a7c015c60446:0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 863642
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/runic_utxos_of_wallet:
+    get:
+      summary: Get Runic UTXOs of Bitcoin Wallet
+      description: Returns runic UTXOs of a given wallet with runes information. Note that unconfirmed UTXOs block_height is returned as null.
+      operationId: getRunicUtxosOfWallet
+      tags:
+        - Mempool
+      parameters:
+        - name: wallet_addr
+          in: query
+          description: Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "c04e49f6393a571b95f711038746ea78ba673e0a0a2a71be7daccefe6143b154"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 1
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: 863642
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 546
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001465fe7b3cdc7c1762d34b900da053920e96d25d55"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          nullable: true
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: null
+                        satpoints:
+                          type: array
+                          nullable: true
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: null
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["840000:3"]
+                        amounts:
+                          type: array
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: ["209286845"]
+                        txfee:
+                          type: string
+                          nullable: true
+                          description: Transaction fee
+                          example: null
+                        vsize:
+                          type: integer
+                          nullable: true
+                          description: Virtual size
+                          example: null
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "c04e49f6393a571b95f711038746ea78ba673e0a0a2a71be7daccefe6143b154:1"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 863642
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/cardinal_balance_of_wallet:
+    get:
+      summary: Get Cardinal Balance of Bitcoin Wallet
+      description: Returns cardinal balance of a given wallet.
+      operationId: getCardinalBalanceOfWallet
+      tags:
+        - Mempool
+      parameters:
+        - name: wallet_addr
+          in: query
+          description: Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: bc1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24v7eumn
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_unused_confirmed_balance:
+                        type: string
+                        description: Total unused confirmed balance
+                        example: "61150"
+                      total_unused_unconfirmed_balance:
+                        type: string
+                        description: Total unused unconfirmed balance
+                        example: "0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 863642
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/all_cardinal_utxos:
+    get:
+      summary: Get All Cardinal UTXOs in Mempool
+      description: Returns all cardinal UTXOs in Mempool.
+      operationId: getAllCardinalUtxos
+      tags:
+        - Mempool
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "2f8de7eb0b12a9517c2ac122f37bb51867ee9a78b0c27308f2c09628af8e207e"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 0
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: null
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 2522422
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1q9xap3eck8tqdz3y86wzhf85xewr8a75slq88nj"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001429ba18e7163ac0d14487d385749e86cb867efa90"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          nullable: true
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: null
+                        satpoints:
+                          type: array
+                          nullable: true
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: null
+                        rune_ids:
+                          type: array
+                          nullable: true
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: null
+                        amounts:
+                          type: array
+                          nullable: true
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: null
+                        txfee:
+                          type: string
+                          description: Transaction fee
+                          example: "774"
+                        vsize:
+                          type: integer
+                          description: Virtual size
+                          example: 177
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "2f8de7eb0b12a9517c2ac122f37bb51867ee9a78b0c27308f2c09628af8e207e:0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889388
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/all_ordinal_utxos:
+    get:
+      summary: Get All Ordinal UTXOs in Mempool
+      description: Returns all Ordinal UTXOs in Mempool.
+      operationId: getAllOrdinalUtxos
+      tags:
+        - Mempool
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "375e43025d156cf496563859f46e6d590d49b86f0df158671be290eaadb13287"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 0
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: null
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 330
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1pxmahywzrmzlrjndrg3ele2whalmv70elnzdq0ml2nvmhfc5k039snhqpt7"
+                        script:
+                          type: string
+                          description: Script
+                          example: "512036fb723843d8be394da34473fca9d7eff6cf3f3f989a07efea9b3774e2967c4b"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v1_taproot"
+                        inscription_ids:
+                          type: array
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: ["375e43025d156cf496563859f46e6d590d49b86f0df158671be290eaadb13287i0"]
+                        satpoints:
+                          type: array
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: ["375e43025d156cf496563859f46e6d590d49b86f0df158671be290eaadb13287:0:0"]
+                        rune_ids:
+                          type: array
+                          nullable: true
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: null
+                        amounts:
+                          type: array
+                          nullable: true
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: null
+                        txfee:
+                          type: string
+                          description: Transaction fee
+                          example: "158"
+                        vsize:
+                          type: integer
+                          description: Virtual size
+                          example: 151
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "375e43025d156cf496563859f46e6d590d49b86f0df158671be290eaadb13287:0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889388
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/all_runic_utxos:
+    get:
+      summary: Get All Runic UTXOs in Mempool
+      description: Returns all Runic UTXOs in Mempool.
+      operationId: getAllRunicUtxos
+      tags:
+        - Mempool
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "a63fa5a8d71f255d7ce5b699cbd4f21ed18014f0aa64df3f2eaf16bb2ad8213e"
+                        vout:
+                          type: integer
+                          description: Output index
+                          example: 0
+                        block_height:
+                          type: integer
+                          nullable: true
+                          description: Block height (null for unconfirmed UTXOs)
+                          example: null
+                        value:
+                          type: integer
+                          description: Value in satoshis
+                          example: 294
+                        address:
+                          type: string
+                          description: Bitcoin address
+                          example: "bc1q8ys49pxp3c6um7enemwdkl4ud5fwwg2rpdegxu"
+                        script:
+                          type: string
+                          description: Script
+                          example: "001439215284c18e35cdfb33cedcdb7ebc6d12e72143"
+                        script_type:
+                          type: string
+                          description: Script type
+                          example: "witness_v0_keyhash"
+                        inscription_ids:
+                          type: array
+                          nullable: true
+                          description: Inscription IDs
+                          items:
+                            type: string
+                          example: null
+                        satpoints:
+                          type: array
+                          nullable: true
+                          description: Satpoint references
+                          items:
+                            type: string
+                          example: null
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["1:0"]
+                        amounts:
+                          type: array
+                          description: Rune amounts
+                          items:
+                            type: string
+                          example: ["1"]
+                        txfee:
+                          type: string
+                          description: Transaction fee
+                          example: "272"
+                        vsize:
+                          type: integer
+                          description: Virtual size
+                          example: 194
+                        utxo:
+                          type: string
+                          description: UTXO reference
+                          example: "a63fa5a8d71f255d7ce5b699cbd4f21ed18014f0aa64df3f2eaf16bb2ad8213e:0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889388
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /mempool/all_runes_events:
+    get:
+      summary: Get All Runes Events in Mempool
+      description: Returns all Runes Events in Mempool.
+      operationId: getAllRunesEvents
+      tags:
+        - Mempool
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event_type:
+                          type: string
+                          description: Event type
+                          example: "input"
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "081173c52b85daf229d7dd593e547886d31dd9bc73cf712ecb8ef225f11b6561"
+                        outpoint:
+                          type: string
+                          description: Outpoint
+                          example: "96b5d45828720428f3853419250f15a72eb6feebd29d26b5f9e361bdb42a0e94:0"
+                        pkscript:
+                          type: string
+                          description: Public key script
+                          example: "001439215284c18e35cdfb33cedcdb7ebc6d12e72143"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1q8ys49pxp3c6um7enemwdkl4ud5fwwg2rpdegxu"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "1:0"
+                        amount:
+                          type: string
+                          description: Amount
+                          example: "1"
+                        rune_name:
+                          type: string
+                          description: Rune name
+                          example: "UNCOMMONGOODS"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced rune name
+                          example: "UNCOMMON•GOODS"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 0
+                        sale_info:
+                          type: object
+                          nullable: true
+                          description: Sale information
+                          example: null
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889389
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key 

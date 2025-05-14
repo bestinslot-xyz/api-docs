@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot BIP-322 API
+  description: API endpoints related to BIP-322 Protocol
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+paths:
+  /bip322/verify:
+    get:
+      summary: BIP-322 Verify Signature
+      description: Returns if the given signature is valid for given address.
+      operationId: verifyBip322Signature
+      tags:
+        - BIP-322
+      parameters:
+        - name: address
+          in: query
+          description: Signer address
+          required: true
+          schema:
+            type: string
+            example: bc1puhgw5ftrcnzfkkzrmzw8cuwmejjzaf5y2ql06cdrn002095dw8fs803glh
+        - name: signature_b64
+          in: query
+          description: Base64 encoded string of the signature
+          required: true
+          schema:
+            type: string
+            example: AUEde3at2iDQWz5VrXMxeOv8uIwTOlONPoRsO8wmA4iXz5ssIHLXxDP3fjVkb/yp0pxjgwamKq1oe15fSV6wAOzUAQ==
+        - name: message_b64
+          in: query
+          description: Base64 encoded string of the message
+          required: true
+          schema:
+            type: string
+            example: bGlzdGVuaW5nIHRvIHN0YXJzIGJ5IHRoZSB4eA==
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+                    description: Whether the signature is valid
+                    example: true
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 799062
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: API key for authentication. Available in Basic, Pro, and Dedicated tiers.
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: BIP-322
+    description: Endpoints related to BIP-322 Protocol 

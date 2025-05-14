@@ -1,0 +1,930 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot Collections API
+  description: API endpoints related to Ordinals Collections
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+  - url: https://testnet.api.bestinslot.xyz/v3
+    description: Testnet server
+  - url: https://signet_api.bestinslot.xyz/v3
+    description: Signet server
+paths:
+  /collection/collections:
+    get:
+      summary: Get collections
+      description: Returns ordered list of collections with detailed information about them.
+      operationId: getCollections
+      tags:
+        - Collections
+      parameters:
+        - name: sort_by
+          in: query
+          description: |
+            Field to sort by. 
+            Basic tier fields: supply, min_number, median_number, max_number
+            Pro tier fields: listed_count, floor_price, floor_price_ordswap, floor_price_magiceden, floor_price_ordinalswallet, floor_price_gammaio, floor_price_ordynals, floor_price_ordinalsmarket, floor_price_unisat, floor_price_okx, vol_24h_in_btc, vol_7d_in_btc, sale_cnt_7d, vol_total_in_btc, sale_cnt_total, marketcap
+          required: true
+          schema:
+            type: string
+            example: median_number
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Collection name
+                          example: "Quantum Cats"
+                        slug:
+                          type: string
+                          description: Collection slug
+                          example: "quantum_cats"
+                        inscription_icon_id:
+                          type: string
+                          description: Icon inscription ID or URL
+                          example: "https://creator-hub-prod.s3.us-east-2.amazonaws.com/ord-taproot_wizards_presents_pfp_1706542390359.png"
+                        icon_url:
+                          type: string
+                          description: Icon URL
+                          example: "https://creator-hub-prod.s3.us-east-2.amazonaws.com/ord-taproot_wizards_presents_pfp_1706542390359.png"
+                        icon_render_url:
+                          type: string
+                          nullable: true
+                          description: Icon render URL
+                          example: null
+                        bis_url:
+                          type: string
+                          description: BestInSlot URL
+                          example: "https://bestinslot.xyz/ordinals/collection/quantum_cats"
+                        supply:
+                          type: string
+                          description: Collection supply
+                          example: "3333"
+                        min_number:
+                          type: integer
+                          description: Minimum inscription number
+                          example: 53785860
+                        median_number:
+                          type: integer
+                          description: Median inscription number
+                          example: 53788086
+                        max_number:
+                          type: integer
+                          description: Maximum inscription number
+                          example: 53790617
+                        listed_count:
+                          type: integer
+                          description: Number of listed items (Pro tier)
+                          example: 132
+                        floor_price:
+                          type: integer
+                          description: Floor price (Pro tier)
+                          example: 12136980
+                        floor_price_ordswap:
+                          type: integer
+                          nullable: true
+                          description: Floor price on Ordswap (Pro tier)
+                          example: null
+                        floor_price_magiceden:
+                          type: integer
+                          description: Floor price on Magic Eden (Pro tier)
+                          example: 12136980
+                        floor_price_ordinalswallet:
+                          type: integer
+                          nullable: true
+                          description: Floor price on Ordinals Wallet (Pro tier)
+                          example: null
+                        floor_price_gammaio:
+                          type: integer
+                          nullable: true
+                          description: Floor price on Gamma (Pro tier)
+                          example: null
+                        floor_price_ordynals:
+                          type: integer
+                          nullable: true
+                          description: Floor price on Ordynals (Pro tier)
+                          example: null
+                        floor_price_unisat:
+                          type: integer
+                          nullable: true
+                          description: Floor price on Unisat (Pro tier)
+                          example: null
+                        floor_price_ordinalsmarket:
+                          type: integer
+                          description: Floor price on Ordinals Market (Pro tier)
+                          example: 199000000
+                        floor_price_okx:
+                          type: integer
+                          description: Floor price on OKX (Pro tier)
+                          example: 20000000
+                        vol_3h_in_btc:
+                          type: number
+                          description: 3-hour volume in BTC (Pro tier)
+                          example: 0.20895894
+                        vol_24h_in_btc:
+                          type: number
+                          description: 24-hour volume in BTC (Pro tier)
+                          example: 0.20895894
+                        vol_7d_in_btc:
+                          type: number
+                          description: 7-day volume in BTC (Pro tier)
+                          example: 16.14854946
+                        vol_30d_in_btc:
+                          type: number
+                          description: 30-day volume in BTC (Pro tier)
+                          example: 92.46122358
+                        sale_cnt_7d:
+                          type: integer
+                          description: 7-day sale count (Pro tier)
+                          example: 139
+                        vol_total_in_btc:
+                          type: number
+                          description: Total volume in BTC (Pro tier)
+                          example: 1683.87253749
+                        sale_cnt_total:
+                          type: integer
+                          description: Total sale count (Pro tier)
+                          example: 6352
+                        marketcap:
+                          type: integer
+                          description: Market capitalization (Pro tier)
+                          example: 40452554340
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889392
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+            
+  /collection/info:
+    get:
+      summary: Get Collection Information
+      description: Returns detailed information about a specific collection.
+      operationId: getCollectionInfo
+      tags:
+        - Collections
+      parameters:
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: degods
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Collection name
+                        example: "Strokes by zond"
+                      twitter_link:
+                        type: string
+                        description: Twitter link
+                        example: "https://twitter.com/imgdotart"
+                      discord_link:
+                        type: string
+                        description: Discord link
+                        example: "https://discord.gg/nzQvtTfGJY"
+                      website_link:
+                        type: string
+                        description: Website link
+                        example: ""
+                      description:
+                        type: string
+                        description: Collection description
+                        example: ""
+                      supply:
+                        type: string
+                        description: Collection supply
+                        example: "16"
+                      inscription_icon_id:
+                        type: string
+                        description: Icon inscription ID
+                        example: "facd59ddb3d1822b6433eb297a1c4e11d46b75bb98559e3167f4f12e367da28ei0"
+                      min_number:
+                        type: integer
+                        description: Minimum inscription number
+                        example: 131639
+                      median_number:
+                        type: integer
+                        description: Median inscription number
+                        example: 131647
+                      max_number:
+                        type: integer
+                        description: Maximum inscription number
+                        example: 131654
+                      icon_url:
+                        type: string
+                        description: Icon URL
+                        example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/facd59ddb3d1822b6433eb297a1c4e11d46b75bb98559e3167f4f12e367da28ei0"
+                      icon_render_url:
+                        type: string
+                        description: Icon render URL
+                        example: "https://bis-ord-renders.fra1.cdn.digitaloceanspaces.com/renders/facd59ddb3d1822b6433eb297a1c4e11d46b75bb98559e3167f4f12e367da28ei0.png"
+                      bis_url:
+                        type: string
+                        description: BestInSlot URL
+                        example: "https://bestinslot.xyz/ordinals/collection/strokes-by-zond"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 836797
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+            
+  /collection/holders:
+    get:
+      summary: Get Collection Holders
+      description: Returns an array with holder information. Each entry has a wallet address and collected inscription ids.
+      operationId: getCollectionHolders
+      tags:
+        - Collections
+      parameters:
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: degods
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: false
+          schema:
+            type: string
+            enum: [wallet_addr]
+        - name: order
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: count
+          in: query
+          description: Number of records to return
+          required: false
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        wallet:
+                          type: string
+                          description: Wallet address
+                          example: "bc1phw8w74ghl05k2h8lfxsmf45cygw4h6jhl7etm8qn5jjctpgyaxusl94w8s"
+                        inscription_ids:
+                          type: array
+                          description: List of inscription IDs held by the wallet
+                          items:
+                            type: string
+                          example: [
+                            "22c8afa20c013499e278318e30e4745fbaa7b613e8b9a954d6d3661322c66816i0",
+                            "48c922a1d013c7d179c291f39dd0f2b3bc2c194a0bc464fdd16f52f11da4ad1ei0"
+                          ]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795035
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+  
+  /collection/inscriptions:
+    get:
+      summary: Get Collection Inscriptions
+      description: Returns ordered list of inscriptions of a specific collection.
+      operationId: getCollectionInscriptions
+      tags:
+        - Collections
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [inscr_num]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: bitcoin-frogs
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Inscription name
+                          example: "Runestone"
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "5f3dafcdd142358b332e0939d37174b76472735df8df29325901d2c7d18a152ci19"
+                        inscription_number:
+                          type: integer
+                          description: Inscription number
+                          example: 64362443
+                        metadata:
+                          type: object
+                          description: Metadata object
+                          properties:
+                            name:
+                              type: string
+                              description: Metadata name
+                              example: "Runestone"
+                        owner_wallet_addr:
+                          type: string
+                          description: Owner wallet address
+                          example: "12dSsr8sFs21kpWaD2spSweFmyNzkZ8eRu"
+                        mime_type:
+                          type: string
+                          description: MIME type
+                          example: "model/gltf+json"
+                        last_transfer_block_height:
+                          type: integer
+                          description: Last transfer block height
+                          example: 834708
+                        parent_ids:
+                          type: array
+                          description: Parent inscription IDs
+                          items:
+                            type: string
+                          example: ["fdb2df5d2b16db1ebcbf09e2d23b3f4e417db44b58e712c99b61f26b52c7cbb5i0"]
+                        genesis_height:
+                          type: integer
+                          description: Genesis block height
+                          example: 834708
+                        last_sale_price:
+                          type: integer
+                          nullable: true
+                          description: Last sale price (Pro tier)
+                          example: null
+                        content_url:
+                          type: string
+                          description: Content URL
+                          example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/5f3dafcdd142358b332e0939d37174b76472735df8df29325901d2c7d18a152ci19"
+                        bis_url:
+                          type: string
+                          description: BestInSlot URL
+                          example: "https://bestinslot.xyz/ordinals/inscription/5f3dafcdd142358b332e0939d37174b76472735df8df29325901d2c7d18a152ci19"
+                        render_url:
+                          type: string
+                          nullable: true
+                          description: Render URL
+                          example: null
+                        delegate:
+                          type: object
+                          description: Delegate information
+                          properties:
+                            delegate_id:
+                              type: string
+                              description: Delegate ID
+                              example: "ed76bf35918948b8b78be0e6397ad4916d926dd3d65679a8b7e67d8699a672a0i0"
+                            render_url:
+                              type: string
+                              description: Render URL
+                              example: "https://bis-ord-renders.fra1.cdn.digitaloceanspaces.com/renders/ed76bf35918948b8b78be0e6397ad4916d926dd3d65679a8b7e67d8699a672a0i0.png"
+                            mime_type:
+                              type: string
+                              description: MIME type
+                              example: "model/gltf+json"
+                            content_url:
+                              type: string
+                              description: Content URL
+                              example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/ed76bf35918948b8b78be0e6397ad4916d926dd3d65679a8b7e67d8699a672a0i0"
+                            bis_url:
+                              type: string
+                              description: BestInSlot URL
+                              example: "https://bestinslot.xyz/ordinals/inscription/ed76bf35918948b8b78be0e6397ad4916d926dd3d65679a8b7e67d8699a672a0i0"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 799055
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+          
+  /collection/sales_info:
+    get:
+      summary: Get Collection Sales Information
+      description: Returns sales and volume information about a specific collection.
+      operationId: getCollectionSalesInfo
+      tags:
+        - Collections
+      parameters:
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: bitcoin-frogs
+        - name: marketplace_type
+          in: query
+          description: Optional parameter to filter only by a given marketplace
+          required: false
+          schema:
+            type: string
+            example: magiceden
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      vol_3h:
+                        type: string
+                        description: 3-hour volume
+                        example: "9970000"
+                      vol_6h:
+                        type: string
+                        description: 6-hour volume
+                        example: "45228879"
+                      vol_9h:
+                        type: string
+                        description: 9-hour volume
+                        example: "82738348"
+                      vol_12h:
+                        type: string
+                        description: 12-hour volume
+                        example: "94525896"
+                      vol_1d:
+                        type: string
+                        description: 1-day volume
+                        example: "140485613"
+                      vol_3d:
+                        type: string
+                        description: 3-day volume
+                        example: "995189800"
+                      vol_7d:
+                        type: string
+                        description: 7-day volume
+                        example: "2282078504"
+                      vol_30d:
+                        type: string
+                        description: 30-day volume
+                        example: "20435090360"
+                      vol_total:
+                        type: string
+                        description: Total volume
+                        example: "49541749144"
+                      sale_count:
+                        type: integer
+                        description: Sale count
+                        example: 12274
+                      marketplace:
+                        type: string
+                        description: Marketplace filter
+                        example: "all"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795035
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /collection/market_info:
+    get:
+      summary: Get Collection Market Information
+      description: Returns market information like marketcap, listed count, floor price about a specific collection.
+      operationId: getCollectionMarketInfo
+      tags:
+        - Collections
+      parameters:
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: omb
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      listed_count:
+                        type: integer
+                        description: Number of listed items
+                        example: 311
+                      floor_price:
+                        type: integer
+                        description: Floor price
+                        example: 20706000
+                      floor_price_ordswap:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Ordswap
+                        example: null
+                      floor_price_magiceden:
+                        type: integer
+                        description: Floor price on Magic Eden
+                        example: 20706000
+                      floor_price_ordinalswallet:
+                        type: integer
+                        description: Floor price on Ordinals Wallet
+                        example: 300000000
+                      floor_price_gammaio:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Gamma
+                        example: null
+                      floor_price_unisat:
+                        type: integer
+                        description: Floor price on Unisat
+                        example: 100500000
+                      floor_price_ordynals:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Ordynals
+                        example: null
+                      floor_price_ordinalsmarket:
+                        type: integer
+                        nullable: true
+                        description: Floor price on Ordinals Market
+                        example: null
+                      floor_price_okx:
+                        type: integer
+                        description: Floor price on OKX
+                        example: 57899999
+                      supply:
+                        type: string
+                        description: Collection supply
+                        example: "5243"
+                      marketcap:
+                        type: integer
+                        description: Market capitalization
+                        example: 108561558000
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 849817
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /collection/listings:
+    get:
+      summary: Get Collection Listings
+      description: Returns ordered list of listings of a specific collection.
+      operationId: getCollectionListings
+      tags:
+        - Collections
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [min_price, ordswap_price, magiceden_price, ordinalswallet_price, gammaio_price, odynals_price, unisat_price, ordinalsmarket_price, okx_price]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: bitcoin-frogs
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "02696786f173f05e55b457d12ef41bfcc905acd6ee5c0c61b80d8679a4ea91c9i0"
+                        min_price:
+                          type: integer
+                          description: Minimum price
+                          example: 4284000
+                        ordswap_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Ordswap
+                          example: null
+                        magiceden_price:
+                          type: integer
+                          description: Price on Magic Eden
+                          example: 4284000
+                        ordinalswallet_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Ordinals Wallet
+                          example: null
+                        gammaio_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Gamma
+                          example: null
+                        nostr_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Nostr
+                          example: null
+                        odynals_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Odynals
+                          example: null
+                        unisat_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Unisat
+                          example: null
+                        ordinalsmarket_price:
+                          type: integer
+                          nullable: true
+                          description: Price on Ordinals Market
+                          example: null
+                        okx_price:
+                          type: integer
+                          nullable: true
+                          description: Price on OKX
+                          example: null
+                        owner_wallet_addr:
+                          type: string
+                          description: Owner wallet address
+                          example: "bc1pg95hedhcnrv9gu595n7ysy4apu6c0cz9vrs08dxd59p7kn5zyv0s6zdv0p"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 803265
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /collection/activity:
+    get:
+      summary: Get Collection Activity
+      description: Returns ordered list of inscribes, sales and transfers of a specific collection.
+      operationId: getCollectionActivity
+      tags:
+        - Collections
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [ts]
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+        - name: count
+          in: query
+          description: Number of records to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+        - name: slug
+          in: query
+          description: Collection slug
+          required: true
+          schema:
+            type: string
+            example: degods
+        - name: activity_filter
+          in: query
+          description: Filter for activity types (1=inscribed, 2=transferred, 4=sold, combine with OR operator)
+          required: true
+          schema:
+            type: integer
+            example: 7
+        - name: last_new_satpoint
+          in: query
+          description: Use this with offset 0 to continue from a known transfer
+          required: false
+          schema:
+            type: string
+            example: 32b63c4844db4f704a8df0cf27fcf6ee966a716ea5410e598fe40734b1a7027f:1:0
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inscription_id:
+                          type: string
+                          description: Inscription ID
+                          example: "daf55547be8fd88f242ce24b3af11ec9f4d602b0c05b4b23967dfcd160ac719di0"
+                        from_wallet:
+                          type: string
+                          description: Source wallet address
+                          example: "bc1pm2grfjnvhrfjff965cs63gma5ze02v3572wks9mdl7kxjyt2q58q5es97l"
+                        to_wallet:
+                          type: string
+                          description: Destination wallet address
+                          example: "bc1pdly22tta7wx56j9xhygzg5dwnd4a3xnj7qyt9ewrajn9hvmha9msfpm3sd"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 795034
+                        sale_price:
+                          type: integer
+                          description: Sale price
+                          example: -1
+                        new_satpoint:
+                          type: string
+                          description: New satpoint reference
+                          example: "5cd78b9bf19d80a1d525564ef7df775b65f0cc15e5f7bbafcb724c1b8995615c:0:0"
+                        ts:
+                          type: string
+                          format: date-time
+                          description: Timestamp
+                          example: "2023-06-19T09:30:18.000Z"
+                        marketplace_type:
+                          type: string
+                          description: Marketplace type
+                          example: "magiceden"
+                        tx_id:
+                          type: string
+                          description: Transaction ID
+                          example: "5cd78b9bf19d80a1d525564ef7df775b65f0cc15e5f7bbafcb724c1b8995615c"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 795035
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: API key for authentication. Required for all endpoints, different tiers (Basic, Pro, Dedicated, Enterprise) have access to different endpoints.
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Collections
+    description: Endpoints related to Ordinals Collections 

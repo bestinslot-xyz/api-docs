@@ -1,0 +1,2546 @@
+openapi: 3.0.0
+info:
+  title: BestInSlot Runes API
+  description: API endpoints related to Runes Protocol
+  version: '3.0'
+  contact:
+    name: BestInSlot
+    url: https://bestinslot.xyz
+servers:
+  - url: https://api.bestinslot.xyz/v3
+    description: Production server
+  - url: https://testnet.api.bestinslot.xyz/v3
+    description: Testnet server
+  - url: https://signet_api.bestinslot.xyz/v3
+    description: Signet server
+paths:
+  /runes/testnet_faucet:
+    get:
+      summary: Runes Testnet4 Faucet (only on testnet)
+      description: A testnet rune faucet that mints 1.0 (1_0000_0000) test rune to target address. Limited with 10 request per 24 hours per key.
+      operationId: getRunesTestnetFaucet
+      tags:
+        - Runes
+      parameters:
+        - name: address
+          in: query
+          description: Testnet Bitcoin wallet address
+          required: true
+          schema:
+            type: string
+            example: tb1qvhl8k0xu0stk956tjqx6q5ujp6tdyh24xcz0qq
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mint_txid:
+                    type: string
+                    description: Transaction ID of the mint
+                    example: "43cec273ded990afcc681eb64da2e4884f7dc8518db01f82620dff98beaa0e49"
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+  
+  /runes/tickers:
+    get:
+      summary: Runes Tickers
+      description: Returns information about runes tickers. avg_unit_price_in_sats is scaled by decimals to make ordering more meaningful.
+      operationId: getRunesTickers
+      tags:
+        - Runes
+      parameters:
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [rune_id, rune_number, rune_name, mint_cnt, total_minted_supply, burned_supply, circulating_supply, mint_progress, deploy_ts, holder_count, event_count, avg_unit_price_in_sats, min_listed_unit_price_in_sats, min_listed_unit_price_unisat, listed_supply, listed_supply_ratio, marketcap, total_volume]
+            example: rune_number
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 300
+            example: 100
+        - name: minting_status
+          in: query
+          description: Filter by minting status
+          required: false
+          schema:
+            type: string
+            enum: [not_complete, completed]
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:1"
+                        rune_number:
+                          type: string
+                          description: Rune number
+                          example: "1"
+                        rune_name:
+                          type: string
+                          description: Non-spaced unique Rune Name
+                          example: "ZZZZZFEHUZZZZZ"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune Name
+                          example: "Z•Z•Z•Z•Z•FEHU•Z•Z•Z•Z•Z"
+                        symbol:
+                          type: string
+                          description: Rune symbol
+                          example: "ᚠ"
+                        decimals:
+                          type: integer
+                          description: Decimals (divisibility)
+                          example: 2
+                        per_mint_amount:
+                          type: string
+                          description: Amount minted per mint event
+                          example: "100"
+                        mint_cnt:
+                          type: string
+                          description: Count of mint events
+                          example: "1111111"
+                        mint_cnt_limit:
+                          type: string
+                          description: Maximum allowed mint events
+                          example: "1111111"
+                        premined_supply:
+                          type: string
+                          description: Amount premined during deployment
+                          example: "11000000000"
+                        total_minted_supply:
+                          type: string
+                          description: premine + mint_cnt * per_mint_amount
+                          example: "11111111100"
+                        burned_supply:
+                          type: string
+                          description: Amount of supply that has been burned
+                          example: "46300"
+                        circulating_supply:
+                          type: string
+                          description: total_minted_supply - burned_supply
+                          example: "11111064800"
+                        mint_progress:
+                          type: integer
+                          description: Percentage of mint completion
+                          example: 100
+                        mint_start_block:
+                          type: integer
+                          nullable: true
+                          description: Block height when minting started
+                          example: null
+                        mint_end_block:
+                          type: integer
+                          nullable: true
+                          description: Block height when minting ends
+                          example: null
+                        genesis_block:
+                          type: integer
+                          description: Block height of deployment
+                          example: 840000
+                        deploy_ts:
+                          type: string
+                          format: date-time
+                          description: Deployment timestamp
+                          example: "2024-04-20T00:09:27.000Z"
+                        deploy_txid:
+                          type: string
+                          description: Deployment transaction ID
+                          example: "2bb85f4b004be6da54f766c17c1e855187327112c231ef2ff35ebad0ea67c69e"
+                        auto_upgrade:
+                          type: boolean
+                          description: Whether ticker should auto opt-in to new features
+                          example: true
+                        holder_count:
+                          type: integer
+                          description: Number of holders
+                          example: 22865
+                        event_count:
+                          type: integer
+                          description: Number of events
+                          example: 3033717
+                        mintable:
+                          type: boolean
+                          description: Whether more can be minted
+                          example: false
+                        icon_inscr_id:
+                          type: string
+                          description: Icon inscription ID
+                          example: "2bb85f4b004be6da54f766c17c1e855187327112c231ef2ff35ebad0ea67c69ei0"
+                        icon_delegate_id:
+                          type: string
+                          description: Icon delegation ID
+                          example: "e16b8b872584112c6e84c5a941e8ad91f9e428458605a0e9f582305dd12ef247i0"
+                        icon_content_url:
+                          type: string
+                          description: URL to icon content
+                          example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/e16b8b872584112c6e84c5a941e8ad91f9e428458605a0e9f582305dd12ef247i0"
+                        icon_render_url:
+                          type: string
+                          nullable: true
+                          description: URL to rendered icon
+                          example: null
+                        avg_unit_price_in_sats:
+                          type: number
+                          description: Average unit price in satoshis
+                          example: 30195.999999999996
+                        min_listed_unit_price_in_sats:
+                          type: number
+                          description: Minimum listed unit price in satoshis
+                          example: 30233.581818181818
+                        min_listed_unit_price_unisat:
+                          type: number
+                          description: Minimum listed unit price on Unisat
+                          example: 30233.582000000002
+                        listed_supply:
+                          type: string
+                          description: Amount of supply currently listed
+                          example: "929250"
+                        listed_supply_ratio:
+                          type: number
+                          description: Ratio of listed supply to total supply
+                          example: 0.00008363284858171289
+                        marketcap:
+                          type: number
+                          description: Market capitalization in satoshis
+                          example: 3355097127008
+                        total_sale_info:
+                          type: object
+                          properties:
+                            sale_count:
+                              type: integer
+                              description: Total number of sales
+                              example: 106570
+                            sale_count_3h:
+                              type: integer
+                              description: Sales in last 3 hours
+                              example: 0
+                            sale_count_6h:
+                              type: integer
+                              description: Sales in last 6 hours
+                              example: 1
+                            sale_count_9h:
+                              type: integer
+                              description: Sales in last 9 hours
+                              example: 1
+                            sale_count_12h:
+                              type: integer
+                              description: Sales in last 12 hours
+                              example: 73
+                            sale_count_1d:
+                              type: integer
+                              description: Sales in last day
+                              example: 205
+                            sale_count_3d:
+                              type: integer
+                              description: Sales in last 3 days
+                              example: 413
+                            sale_count_7d:
+                              type: integer
+                              description: Sales in last 7 days
+                              example: 1002
+                            sale_count_30d:
+                              type: integer
+                              description: Sales in last 30 days
+                              example: 2583
+                            sale_amount:
+                              type: integer
+                              description: Total amount sold
+                              example: 77883929
+                            vol_3h:
+                              type: integer
+                              description: Volume in last 3 hours
+                              example: 0
+                            vol_6h:
+                              type: integer
+                              description: Volume in last 6 hours
+                              example: 126159
+                            vol_9h:
+                              type: integer
+                              description: Volume in last 9 hours
+                              example: 126159
+                            vol_12h:
+                              type: integer
+                              description: Volume in last 12 hours
+                              example: 1226131
+                            vol_1d:
+                              type: integer
+                              description: Volume in last day
+                              example: 4207823
+                            vol_3d:
+                              type: integer
+                              description: Volume in last 3 days
+                              example: 16909211
+                            vol_7d:
+                              type: integer
+                              description: Volume in last 7 days
+                              example: 51653484
+                            vol_30d:
+                              type: integer
+                              description: Volume in last 30 days
+                              example: 220929558
+                            vol_total:
+                              type: integer
+                              description: Total volume
+                              example: 26566160622
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 847620
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+
+  /runes/ticker_cnt:
+    get:
+      summary: Runes Ticker Count
+      description: Returns count of all runes tickers and mintable runes tickers
+      operationId: getRunesTickerCount
+      tags:
+        - Runes
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      ticker_cnt:
+                        type: integer
+                        description: Total number of tickers
+                        example: 70480
+                      minting_ticker_cnt:
+                        type: integer
+                        description: Number of tickers still minting
+                        example: 14596
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 844739
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/ticker_info:
+    get:
+      summary: Runes Single Ticker Info
+      description: Returns information about given runes ticker. Note that avg_unit_price_in_sats, min_listed_unit_price_in_sats, listed_supply, listed_supply_ratio, marketcap and total_sale_info are only available in PRO tier.
+      operationId: getRunesTickerInfo
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:1
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      rune_id:
+                        type: string
+                        description: Rune ID
+                        example: "840000:1"
+                      rune_number:
+                        type: string
+                        description: Rune number
+                        example: "1"
+                      rune_name:
+                        type: string
+                        description: Non-spaced unique Rune Name
+                        example: "ZZZZZFEHUZZZZZ"
+                      spaced_rune_name:
+                        type: string
+                        description: Spaced Rune Name
+                        example: "Z•Z•Z•Z•Z•FEHU•Z•Z•Z•Z•Z"
+                      symbol:
+                        type: string
+                        description: Rune symbol
+                        example: "ᚠ"
+                      decimals:
+                        type: integer
+                        description: Decimals (divisibility)
+                        example: 2
+                      per_mint_amount:
+                        type: string
+                        description: Amount minted per mint event
+                        example: "100"
+                      mint_cnt:
+                        type: string
+                        description: Count of mint events
+                        example: "1111111"
+                      mint_cnt_limit:
+                        type: string
+                        description: Maximum allowed mint events
+                        example: "1111111"
+                      premined_supply:
+                        type: string
+                        description: Amount premined during deployment
+                        example: "11000000000"
+                      total_minted_supply:
+                        type: string
+                        description: premine + mint_cnt * per_mint_amount
+                        example: "11111111100"
+                      burned_supply:
+                        type: string
+                        description: Amount of supply that has been burned
+                        example: "46300"
+                      circulating_supply:
+                        type: string
+                        description: total_minted_supply - burned_supply
+                        example: "11111064800"
+                      mint_progress:
+                        type: integer
+                        description: Percentage of mint completion
+                        example: 100
+                      mint_start_block:
+                        type: integer
+                        nullable: true
+                        description: Block height when minting started
+                        example: null
+                      mint_end_block:
+                        type: integer
+                        nullable: true
+                        description: Block height when minting ends
+                        example: null
+                      genesis_block:
+                        type: integer
+                        description: Block height of deployment
+                        example: 840000
+                      deploy_ts:
+                        type: string
+                        format: date-time
+                        description: Deployment timestamp
+                        example: "2024-04-20T00:09:27.000Z"
+                      deploy_txid:
+                        type: string
+                        description: Deployment transaction ID
+                        example: "2bb85f4b004be6da54f766c17c1e855187327112c231ef2ff35ebad0ea67c69e"
+                      auto_upgrade:
+                        type: boolean
+                        description: Whether ticker should auto opt-in to new features
+                        example: true
+                      holder_count:
+                        type: integer
+                        description: Number of holders
+                        example: 22865
+                      event_count:
+                        type: integer
+                        description: Number of events
+                        example: 3033717
+                      mintable:
+                        type: boolean
+                        description: Whether more can be minted
+                        example: false
+                      icon_inscr_id:
+                        type: string
+                        description: Icon inscription ID
+                        example: "2bb85f4b004be6da54f766c17c1e855187327112c231ef2ff35ebad0ea67c69ei0"
+                      icon_delegate_id:
+                        type: string
+                        description: Icon delegation ID
+                        example: "e16b8b872584112c6e84c5a941e8ad91f9e428458605a0e9f582305dd12ef247i0"
+                      icon_content_url:
+                        type: string
+                        description: URL to icon content
+                        example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/e16b8b872584112c6e84c5a941e8ad91f9e428458605a0e9f582305dd12ef247i0"
+                      icon_render_url:
+                        type: string
+                        nullable: true
+                        description: URL to rendered icon
+                        example: null
+                      avg_unit_price_in_sats:
+                        type: number
+                        description: Average unit price in satoshis
+                        example: 30195.999999999996
+                      min_listed_unit_price_in_sats:
+                        type: number
+                        description: Minimum listed unit price in satoshis
+                        example: 30233.581818181818
+                      min_listed_unit_price_unisat:
+                        type: number
+                        description: Minimum listed unit price on Unisat
+                        example: 30233.582000000002
+                      listed_supply:
+                        type: string
+                        description: Amount of supply currently listed
+                        example: "929250"
+                      listed_supply_ratio:
+                        type: number
+                        description: Ratio of listed supply to total supply
+                        example: 0.00008363284858171289
+                      marketcap:
+                        type: number
+                        description: Market capitalization in satoshis
+                        example: 3355097127008
+                      total_sale_info:
+                        type: object
+                        properties:
+                          sale_count:
+                            type: integer
+                            description: Total number of sales
+                            example: 106570
+                          sale_count_3h:
+                            type: integer
+                            description: Sales in last 3 hours
+                            example: 0
+                          sale_count_6h:
+                            type: integer
+                            description: Sales in last 6 hours
+                            example: 1
+                          sale_count_9h:
+                            type: integer
+                            description: Sales in last 9 hours
+                            example: 1
+                          sale_count_12h:
+                            type: integer
+                            description: Sales in last 12 hours
+                            example: 73
+                          sale_count_1d:
+                            type: integer
+                            description: Sales in last day
+                            example: 205
+                          sale_count_3d:
+                            type: integer
+                            description: Sales in last 3 days
+                            example: 413
+                          sale_count_7d:
+                            type: integer
+                            description: Sales in last 7 days
+                            example: 1002
+                          sale_count_30d:
+                            type: integer
+                            description: Sales in last 30 days
+                            example: 2583
+                          sale_amount:
+                            type: integer
+                            description: Total amount sold
+                            example: 77883929
+                          vol_3h:
+                            type: integer
+                            description: Volume in last 3 hours
+                            example: 0
+                          vol_6h:
+                            type: integer
+                            description: Volume in last 6 hours
+                            example: 126159
+                          vol_9h:
+                            type: integer
+                            description: Volume in last 9 hours
+                            example: 126159
+                          vol_12h:
+                            type: integer
+                            description: Volume in last 12 hours
+                            example: 1226131
+                          vol_1d:
+                            type: integer
+                            description: Volume in last day
+                            example: 4207823
+                          vol_3d:
+                            type: integer
+                            description: Volume in last 3 days
+                            example: 16909211
+                          vol_7d:
+                            type: integer
+                            description: Volume in last 7 days
+                            example: 51653484
+                          vol_30d:
+                            type: integer
+                            description: Volume in last 30 days
+                            example: 220929558
+                          vol_total:
+                            type: integer
+                            description: Total volume
+                            example: 26566160622
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 847620
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key 
+
+  /runes/sales_info:
+    get:
+      summary: Get Runes Sales Information
+      description: Returns sales and volume information about a specific runes ticker.
+      operationId: getRunesSalesInfo
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: SATOSHINAKAMOTO
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:22
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 22
+        - name: marketplace_type
+          in: query
+          description: Filter only by a given marketplace
+          required: false
+          schema:
+            type: string
+            example: unisat
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      marketplace:
+                        type: string
+                        description: Marketplace filter (all if none specified)
+                        example: all
+                      vol_3h:
+                        type: integer
+                        description: Volume in last 3 hours
+                        example: 7579717
+                      vol_6h:
+                        type: integer
+                        description: Volume in last 6 hours
+                        example: 15354385
+                      vol_9h:
+                        type: integer
+                        description: Volume in last 9 hours
+                        example: 24536418
+                      vol_12h:
+                        type: integer
+                        description: Volume in last 12 hours
+                        example: 43035106
+                      vol_1d:
+                        type: integer
+                        description: Volume in last day
+                        example: 63367091
+                      vol_3d:
+                        type: integer
+                        description: Volume in last 3 days
+                        example: 149531954
+                      vol_7d:
+                        type: integer
+                        description: Volume in last 7 days
+                        example: 397417106
+                      vol_30d:
+                        type: integer
+                        description: Volume in last 30 days
+                        example: 2320019379
+                      vol_total:
+                        type: integer
+                        description: Total volume
+                        example: 12611770343
+                      sale_count:
+                        type: integer
+                        description: Total number of sales
+                        example: 55463
+                      sale_count_3h:
+                        type: integer
+                        description: Sales in last 3 hours
+                        example: 32
+                      sale_count_6h:
+                        type: integer
+                        description: Sales in last 6 hours
+                        example: 78
+                      sale_count_9h:
+                        type: integer
+                        description: Sales in last 9 hours
+                        example: 158
+                      sale_count_12h:
+                        type: integer
+                        description: Sales in last 12 hours
+                        example: 265
+                      sale_count_1d:
+                        type: integer
+                        description: Sales in last day
+                        example: 361
+                      sale_count_3d:
+                        type: integer
+                        description: Sales in last 3 days
+                        example: 925
+                      sale_count_7d:
+                        type: integer
+                        description: Sales in last 7 days
+                        example: 1915
+                      sale_count_30d:
+                        type: integer
+                        description: Sales in last 30 days
+                        example: 8374
+                      sale_amount:
+                        type: integer
+                        description: Total amount of tokens sold
+                        example: 19261486
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 862524
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/market_info:
+    get:
+      summary: Get Runes Market Information
+      description: Returns market information about a specific runes ticker.
+      operationId: getRunesMarketInfo
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: SATOSHINAKAMOTO
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:22
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 22
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      marketcap:
+                        type: integer
+                        description: Market capitalization in satoshis
+                        example: 71876303181
+                      min_listed_unit_price_in_sats:
+                        type: number
+                        description: Minimum listed unit price in satoshis
+                        example: 3308.5
+                      min_listed_unit_price_unisat:
+                        type: number
+                        description: Minimum listed unit price on Unisat
+                        example: 3308.5
+                      listed_supply:
+                        type: string
+                        description: Amount of supply currently listed
+                        example: "35785835289050"
+                      listed_supply_ratio:
+                        type: number
+                        description: Ratio of listed supply to total supply
+                        example: 0.017041117391700833
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 841495
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key 
+
+  /runes/listings:
+    get:
+      summary: Runes Listings
+      description: Returns listing information of a given rune.
+      operationId: getRunesListings
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: DOGGOTOTHEMOON
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:3
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 3
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [output, min_price, unisat_price]
+            example: min_unit_price
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 100
+            example: 100
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        outpoint:
+                          type: string
+                          description: Outpoint (txid:vout)
+                          example: "e03a893219770a198903430634e998c2e7ccaf4fb7a4e8713421f2020822f54c:2"
+                        owner_wallet_addr:
+                          type: string
+                          description: Owner's wallet address
+                          example: "bc1pp7sp50mpsew65ax6x6vjymv7ltsv88xjlzuxnlruca3vkggnggxs43tak5"
+                        amount:
+                          type: integer
+                          description: Amount of runes
+                          example: 5000000
+                        min_price:
+                          type: integer
+                          description: Minimum price in satoshis
+                          example: 26875200
+                        min_unit_price:
+                          type: number
+                          description: Minimum unit price
+                          example: 5.37504
+                        unisat_price:
+                          type: integer
+                          description: Unisat price in satoshis
+                          example: 26875200
+                        unisat_unit_price:
+                          type: number
+                          description: Unisat unit price
+                          example: 5.37504
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/holders:
+    get:
+      summary: Runes Holders
+      description: Returns balances of holders of a given runes ticker.
+      operationId: getRunesHolders
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 1:0
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [balance]
+            example: balance
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 5000
+            example: 500
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "5120851d39de85d2454d267c707d18970fc9dc680fc237e42d1d271a01db230a0195"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1ps5wnnh596fz56fnuwp7339c0e8wxsr7zxljz68f8rgqakgc2qx2stuz5yu"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "1:0"
+                        total_balance:
+                          type: string
+                          description: Total balance
+                          example: "10000"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "UNCOMMONGOODS"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "UNCOMMON•GOODS"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 0
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840523
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+
+  /runes/output_info:
+    get:
+      summary: Runes Single Output Info
+      description: Returns runes information about given bitcoin output.
+      operationId: getRunesOutputInfo
+      tags:
+        - Runes
+      parameters:
+        - name: output
+          in: query
+          description: Outpoint to check runes information
+          required: true
+          schema:
+            type: string
+            example: 314e5e53024ec5860bd2fa2a4e85db2fc9097fcf58caa63f253bb4f86ad4b412:1
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      pkscript:
+                        type: string
+                        description: Bitcoin script pub key
+                        example: "512024034ada955f1716ed7833d56744bd08119355cf5b1bbdbc48e66bc357bdb3b7"
+                      wallet_addr:
+                        type: string
+                        description: Wallet address
+                        example: "bc1pysp54k54tut3dmtcx02kw39apqgex4w0tvdmm0zgue4ux4aakwms3pumq8"
+                      output:
+                        type: string
+                        description: Outpoint
+                        example: "4ee2151d7010574cadc749ce85ae813599c33fc62148a0352eaa946f2da1d2be:0"
+                      rune_ids:
+                        type: array
+                        description: Rune IDs
+                        items:
+                          type: string
+                        example: ["840000:22"]
+                      balances:
+                        type: array
+                        description: Balances for each rune
+                        items:
+                          type: string
+                        example: ["190000000000"]
+                      spent:
+                        type: boolean
+                        description: Whether the output has been spent
+                        example: false
+                      rune_names:
+                        type: array
+                        description: Non-spaced Rune names
+                        items:
+                          type: string
+                        example: ["SATOSHINAKAMOTO"]
+                      spaced_rune_names:
+                        type: array
+                        description: Spaced Rune names
+                        items:
+                          type: string
+                        example: ["SATOSHI•NAKAMOTO"]
+                      decimals:
+                        type: array
+                        description: Decimals for each rune
+                        items:
+                          type: integer
+                        example: [8]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840523
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/batch_output_info:
+    post:
+      summary: Runes Batch Output Info
+      description: Returns runes information about given bitcoin outputs.
+      operationId: postRunesBatchOutputInfo
+      tags:
+        - Runes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - queries
+              properties:
+                queries:
+                  type: array
+                  description: Array of outpoint strings (max length 100)
+                  items:
+                    type: string
+                  example: ["314e5e53024ec5860bd2fa2a4e85db2fc9097fcf58caa63f253bb4f86ad4b412:1", "0979edfb33fa380fb8c80e53809e9d865169ac6857688b31446d577d5f6df869:1", "200380702f43b2a6403bd9576c48e74e7cf184d5ead280eaa25a2d71be9cb2c8:1"]
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "512024034ada955f1716ed7833d56744bd08119355cf5b1bbdbc48e66bc357bdb3b7"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1pysp54k54tut3dmtcx02kw39apqgex4w0tvdmm0zgue4ux4aakwms3pumq8"
+                        output:
+                          type: string
+                          description: Outpoint
+                          example: "4ee2151d7010574cadc749ce85ae813599c33fc62148a0352eaa946f2da1d2be:0"
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["840000:22"]
+                        balances:
+                          type: array
+                          description: Balances for each rune
+                          items:
+                            type: string
+                          example: ["190000000000"]
+                        spent:
+                          type: boolean
+                          description: Whether the output has been spent
+                          example: false
+                        rune_names:
+                          type: array
+                          description: Non-spaced Rune names
+                          items:
+                            type: string
+                          example: ["SATOSHINAKAMOTO"]
+                        spaced_rune_names:
+                          type: array
+                          description: Spaced Rune names
+                          items:
+                            type: string
+                          example: ["SATOSHI•NAKAMOTO"]
+                        decimals:
+                          type: array
+                          description: Decimals for each rune
+                          items:
+                            type: integer
+                          example: [8]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+
+  /runes/wallet_balances:
+    get:
+      summary: Runes Wallet Balances
+      description: Returns runes balance information about given bitcoin wallet address or pkscript.
+      operationId: getRunesWalletBalances
+      tags:
+        - Runes
+      parameters:
+        - name: address
+          in: query
+          description: Bitcoin wallet address
+          required: false
+          schema:
+            type: string
+            example: tb1pd368q84tuark4naym2u5382p59jkd27nw5vu5s44uz8dwdlrcwhqzdl2l2
+        - name: pkscript
+          in: query
+          description: Bitcoin script_pub_key
+          required: false
+          schema:
+            type: string
+            example: 512024034ada955f1716ed7833d56744bd08119355cf5b1bbdbc48e66bc357bdb3b7
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "512024034ada955f1716ed7833d56744bd08119355cf5b1bbdbc48e66bc357bdb3b7"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1pysp54k54tut3dmtcx02kw39apqgex4w0tvdmm0zgue4ux4aakwms3pumq8"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:22"
+                        total_balance:
+                          type: string
+                          description: Total balance
+                          example: "4120000000000"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "SATOSHINAKAMOTO"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "SATOSHI•NAKAMOTO"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 8
+                        avg_unit_price_in_sats:
+                          type: number
+                          description: Average unit price in satoshis
+                          example: 3422.7299999999996
+                        min_listed_unit_price_in_sats:
+                          type: number
+                          description: Minimum listed unit price in satoshis
+                          example: 3308.5
+                        min_listed_unit_price_unisat:
+                          type: number
+                          description: Minimum listed unit price on Unisat
+                          example: 3308.5
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/wallet_valid_outputs:
+    get:
+      summary: Runes Wallet Valid Outputs
+      description: Returns unspent output information of a given wallet.
+      operationId: getRunesWalletValidOutputs
+      tags:
+        - Runes
+      parameters:
+        - name: address
+          in: query
+          description: Bitcoin wallet address
+          required: false
+          schema:
+            type: string
+            example: bc1paa9fl7ae5cnlf9dr7gj0p4egga5fqxvgz0vhjd07h0znnf9xvz8qfsw3e8
+        - name: pkscript
+          in: query
+          description: Bitcoin script_pub_key
+          required: false
+          schema:
+            type: string
+            example: 51206c74701eabe7476acfa4dab9489d41a16566abd37519ca42b5e08ed737e3c3ae
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [output, min_price, unisat_price]
+            example: output
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "5120ef4a9ffbb9a627f495a3f224f0d728476890198813d97935febbc539a4a6608e"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1paa9fl7ae5cnlf9dr7gj0p4egga5fqxvgz0vhjd07h0znnf9xvz8qfsw3e8"
+                        output:
+                          type: string
+                          description: Outpoint
+                          example: "2d69dca0ce6ff19dcd1bddaf56e3760c106a62832d81611c5aa0501966af7aa2:1"
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["840000:3"]
+                        balances:
+                          type: array
+                          description: Balances for each rune
+                          items:
+                            type: string
+                          example: ["173424909679"]
+                        min_price:
+                          type: integer
+                          description: Minimum price in satoshis
+                          example: 9533514
+                        unisat_price:
+                          type: integer
+                          description: Unisat price in satoshis
+                          example: 9533514
+                        rune_names:
+                          type: array
+                          description: Non-spaced Rune names
+                          items:
+                            type: string
+                          example: ["DOGGOTOTHEMOON"]
+                        spaced_rune_names:
+                          type: array
+                          description: Spaced Rune names
+                          items:
+                            type: string
+                          example: ["DOG•GO•TO•THE•MOON"]
+                        decimals:
+                          type: array
+                          description: Decimals for each rune
+                          items:
+                            type: integer
+                          example: [5]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/wallet_valid_outputs_single_rune:
+    get:
+      summary: Runes Wallet Valid Outputs Single Rune
+      description: Returns unspent output information of a given wallet of a given rune.
+      operationId: getRunesWalletValidOutputsSingleRune
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: DOGGOTOTHEMOON
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:3
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 3
+        - name: address
+          in: query
+          description: Bitcoin wallet address
+          required: false
+          schema:
+            type: string
+            example: bc1paa9fl7ae5cnlf9dr7gj0p4egga5fqxvgz0vhjd07h0znnf9xvz8qfsw3e8
+        - name: pkscript
+          in: query
+          description: Bitcoin script_pub_key
+          required: false
+          schema:
+            type: string
+            example: 5120ef4a9ffbb9a627f495a3f224f0d728476890198813d97935febbc539a4a6608e
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [output, min_price, unisat_price]
+            example: min_price
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "5120ef4a9ffbb9a627f495a3f224f0d728476890198813d97935febbc539a4a6608e"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1paa9fl7ae5cnlf9dr7gj0p4egga5fqxvgz0vhjd07h0znnf9xvz8qfsw3e8"
+                        output:
+                          type: string
+                          description: Outpoint
+                          example: "2d69dca0ce6ff19dcd1bddaf56e3760c106a62832d81611c5aa0501966af7aa2:1"
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["840000:3"]
+                        balances:
+                          type: array
+                          description: Balances for each rune
+                          items:
+                            type: string
+                          example: ["173424909679"]
+                        balance_of_rune:
+                          type: string
+                          description: Balance of specific rune
+                          example: "173424909679"
+                        min_price:
+                          type: integer
+                          description: Minimum price in satoshis
+                          example: 9533514
+                        min_unit_price:
+                          type: number
+                          description: Minimum unit price
+                          example: 5.497199922229171
+                        unisat_price:
+                          type: integer
+                          description: Unisat price in satoshis
+                          example: 9533514
+                        unisat_unit_price:
+                          type: number
+                          description: Unisat unit price
+                          example: 5.497199927995356
+                        rune_names:
+                          type: array
+                          description: Non-spaced Rune names
+                          items:
+                            type: string
+                          example: ["DOGGOTOTHEMOON"]
+                        spaced_rune_names:
+                          type: array
+                          description: Spaced Rune names
+                          items:
+                            type: string
+                          example: ["DOG•GO•TO•THE•MOON"]
+                        decimals:
+                          type: array
+                          description: Decimals for each rune
+                          items:
+                            type: integer
+                          example: [5]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/valid_outputs:
+    get:
+      summary: Runes Valid Outputs
+      description: Returns unspent output information of a given ticker.
+      operationId: getRunesValidOutputs
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 1:0
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [output, amount, min_price, min_unit_price, unisat_price, unisat_unit_price]
+            example: output
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        output:
+                          type: string
+                          description: Outpoint
+                          example: "ccb6b5af0499b6626928e2c7aa4c725307fea8ae6dd89fea1ee34bc6e58ecb78:2"
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "512059097d303921cee03ed48b99637ce90c446576b5c89ac85371a44a08a96c7860"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1ptyyh6vpey88wq0k53wvkxl8fp3zx2a44ezdvs5m3539q32tv0psq4k86ef"
+                        rune_ids:
+                          type: array
+                          description: Rune IDs
+                          items:
+                            type: string
+                          example: ["840000:22"]
+                        balances:
+                          type: array
+                          description: Balances for each rune
+                          items:
+                            type: string
+                          example: ["60000000000"]
+                        balance_of_rune:
+                          type: string
+                          description: Balance of specific rune
+                          example: "60000000000"
+                        min_price:
+                          type: integer
+                          description: Minimum price in satoshis
+                          example: 1985100
+                        min_unit_price:
+                          type: number
+                          description: Minimum unit price
+                          example: 3308.5
+                        unisat_price:
+                          type: integer
+                          description: Unisat price in satoshis
+                          example: 1985100
+                        unisat_unit_price:
+                          type: number
+                          description: Unisat unit price
+                          example: 3308.5
+                        rune_names:
+                          type: array
+                          description: Non-spaced Rune names
+                          items:
+                            type: string
+                          example: ["SATOSHINAKAMOTO"]
+                        spaced_rune_names:
+                          type: array
+                          description: Spaced Rune names
+                          items:
+                            type: string
+                          example: ["SATOSHI•NAKAMOTO"]
+                        decimals:
+                          type: array
+                          description: Decimals for each rune
+                          items:
+                            type: integer
+                          example: [8]
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840523
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/wallet_activity:
+    get:
+      summary: Runes Wallet Activity
+      description: Returns runes activity of a given wallet. If the given wallet is involved in a runes transaction, all activity in the transaction will be returned (even if that activity is an input/output to a different wallet). Optional rune filter can be provided.
+      operationId: getRunesWalletActivity
+      tags:
+        - Runes
+      parameters:
+        - name: address
+          in: query
+          description: Bitcoin wallet address
+          required: false
+          schema:
+            type: string
+            example: bc1pysp54k54tut3dmtcx02kw39apqgex4w0tvdmm0zgue4ux4aakwms3pumq8
+        - name: pkscript
+          in: query
+          description: Bitcoin script_pub_Key
+          required: false
+          schema:
+            type: string
+            example: 51206c74701eabe7476acfa4dab9489d41a16566abd37519ca42b5e08ed737e3c3ae
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: SATOSHINAKAMOTO
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 840000:22
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 22
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [ts]
+            example: ts
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+        - name: runes_filter_only_wallet
+          in: query
+          description: If true, only returns the runes events with the selected wallet
+          required: false
+          schema:
+            type: string
+            enum: [true, false]
+            example: false
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event_type:
+                          type: string
+                          description: Event type (input, output, mint, burn, etc.)
+                          example: "output"
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "6f77a8234c74559c2fa74b604bb8318a6811c288591b07e95adc381eb363320e"
+                        outpoint:
+                          type: string
+                          description: Outpoint
+                          example: "6f77a8234c74559c2fa74b604bb8318a6811c288591b07e95adc381eb363320e:0"
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "512088de610b5857285c27fb45369ec8d4c56cf59b4b67ddebc9a7898987e7f82dcd"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1p3r0xzz6c2u59cflmg5mfajx5c4k0tx6tvlw7hjd83xyc0elc9hxslysx6c"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:22"
+                        amount:
+                          type: string
+                          description: Amount
+                          example: "560000000000"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 840407
+                        block_timestamp:
+                          type: string
+                          format: date-time
+                          description: Block timestamp
+                          example: "2024-04-22T22:15:00.000Z"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "SATOSHINAKAMOTO"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "SATOSHI•NAKAMOTO"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 8
+                        sale_info:
+                          type: object
+                          nullable: true
+                          description: Sale information
+                          properties:
+                            sale_price:
+                              type: integer
+                              description: Price in satoshis
+                              example: 42560000
+                            sold_to_pkscript:
+                              type: string
+                              description: Buyer script pub key
+                              example: "512088de610b5857285c27fb45369ec8d4c56cf59b4b67ddebc9a7898987e7f82dcd"
+                            sold_to_wallet_addr:
+                              type: string
+                              description: Buyer wallet address
+                              example: "bc1p3r0xzz6c2u59cflmg5mfajx5c4k0tx6tvlw7hjd83xyc0elc9hxslysx6c"
+                            marketplace:
+                              type: string
+                              description: Marketplace
+                              example: "okx"
+                        icon_content_url:
+                          type: string
+                          description: URL to icon content
+                          example: "https://bis-ord-content.fra1.cdn.digitaloceanspaces.com/ordinals/f753cefb770bf69369d33e93fbc9271f8dc877cb4819cbdd9d766f3509062e43i0"
+                        icon_render_url:
+                          type: string
+                          nullable: true
+                          description: URL to rendered icon
+                          example: null
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/activity:
+    get:
+      summary: Runes Activity of a Ticker
+      description: Returns activity of a given ticker.
+      operationId: getRunesActivity
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 1:0
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [output, amount, ts]
+            example: ts
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event_type:
+                          type: string
+                          description: Event type (input, output, mint, burn, etc.)
+                          example: "output"
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "fa510ec0930c3eb4db1a92a84b237a10277db21e6fa4f3969c7bf8af5e73e4b6"
+                        outpoint:
+                          type: string
+                          description: Outpoint
+                          example: "fa510ec0930c3eb4db1a92a84b237a10277db21e6fa4f3969c7bf8af5e73e4b6:1"
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "51209f8b1cf14c997a807d2c1509b39ff6f5f9d5b24cfd6dca5bba113ae995c840a1"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1pn793eu2vn9agqlfvz5ym88lk7huatvjvl4ku5ka6zyawn9wggzssv5n2ky"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:22"
+                        amount:
+                          type: string
+                          description: Amount
+                          example: "200000000000"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 840350
+                        block_timestamp:
+                          type: string
+                          format: date-time
+                          description: Block timestamp
+                          example: "2024-04-22T13:46:20.000Z"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "SATOSHINAKAMOTO"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "SATOSHI•NAKAMOTO"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 8
+                        sale_info:
+                          type: object
+                          nullable: true
+                          description: Sale information
+                          properties:
+                            sale_price:
+                              type: integer
+                              description: Price in satoshis
+                              example: 15754000
+                            sold_to_pkscript:
+                              type: string
+                              description: Buyer script pub key
+                              example: "51209f8b1cf14c997a807d2c1509b39ff6f5f9d5b24cfd6dca5bba113ae995c840a1"
+                            sold_to_wallet_addr:
+                              type: string
+                              description: Buyer wallet address
+                              example: "bc1pn793eu2vn9agqlfvz5ym88lk7huatvjvl4ku5ka6zyawn9wggzssv5n2ky"
+                            marketplace:
+                              type: string
+                              description: Marketplace
+                              example: "unisat"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/events_on_tx:
+    get:
+      summary: Runes Activity in a Single Tx
+      description: Returns runes activity on a given bitcoin transaction.
+      operationId: getRunesEventsOnTx
+      tags:
+        - Runes
+      parameters:
+        - name: txid
+          in: query
+          description: Bitcoin transaction ID
+          required: true
+          schema:
+            type: string
+            example: e49f0912f94b915c0dd12b7970083b348945c2fc7bc01a21e0bfa403827607cf
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event_type:
+                          type: string
+                          description: Event type (input, output, mint, burn, etc.)
+                          example: "input"
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "34ff792cf5a50666fabfb8c2acc9ef8da9e5d180ab813713ad051d4117124333"
+                        outpoint:
+                          type: string
+                          description: Outpoint
+                          example: "fa76b47040e0ed571030bff83713205167b6d1d2acba3bbb5f8fbaea09a4d4f9:0"
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "0014752451874597e90865c6e9b886b8640a36e82201"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1qw5j9rp69jl5ssewxaxugdwrypgmwsgspqhhttg"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:22"
+                        amount:
+                          type: string
+                          description: Amount
+                          example: "20000000000"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 840336
+                        block_timestamp:
+                          type: string
+                          format: date-time
+                          description: Block timestamp
+                          example: "2024-04-22T11:47:44.000Z"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "SATOSHINAKAMOTO"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "SATOSHI•NAKAMOTO"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 8
+                        sale_info:
+                          type: object
+                          nullable: true
+                          description: Sale information
+                          properties:
+                            sale_price:
+                              type: integer
+                              description: Price in satoshis
+                              example: 1573800
+                            sold_to_pkscript:
+                              type: string
+                              description: Buyer script pub key
+                              example: "5120e571909d0434b191f33cfcd7eb99f06e42a808594839fa7221594e86e212433b"
+                            sold_to_wallet_addr:
+                              type: string
+                              description: Buyer wallet address
+                              example: "bc1pu4cep8gyxjcerueulnt7hx0sdep2szzefqul5u3pt98gdcsjgvas8gtgrk"
+                            marketplace:
+                              type: string
+                              description: Marketplace
+                              example: "unisat"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 840350
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/historical_total_supply:
+    get:
+      summary: Runes Historical Total Supply
+      description: Returns historical total supply for selected rune in selected block height.
+      operationId: getRunesHistoricalTotalSupply
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 1:0
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: block_height
+          in: query
+          description: Bitcoin block height
+          required: true
+          schema:
+            type: integer
+            example: 860000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_supply:
+                        type: string
+                        description: Total supply at the specified block height
+                        example: "26035948"
+                      block_height:
+                        type: string
+                        description: Requested block height
+                        example: "860000"
+                      rune_id:
+                        type: string
+                        description: Rune ID
+                        example: "1:0"
+                      decimals:
+                        type: integer
+                        description: Decimals
+                        example: 0
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 889396
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/activity_on_block:
+    get:
+      summary: Runes All Activity on Block Height
+      description: Returns all runes activity in a given block height.
+      operationId: getRunesActivityOnBlock
+      tags:
+        - Runes
+      parameters:
+        - name: block_height
+          in: query
+          description: Bitcoin block height
+          required: true
+          schema:
+            type: integer
+            example: 840000
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event_type:
+                          type: string
+                          description: Event type (input, output, mint, burn, etc.)
+                          example: "input"
+                        txid:
+                          type: string
+                          description: Transaction ID
+                          example: "e712da809a70f59067c3a65c16f7337079a1113e0072acbef50d96b4af9751a0"
+                        outpoint:
+                          type: string
+                          description: Outpoint
+                          example: "6aea2e2992a65c1974c76a06a87412939b7629c884d07f1d8b09a531e45a32f9:1"
+                        pkscript:
+                          type: string
+                          description: Bitcoin script pub key
+                          example: "51201ac61709cc243d38f261a864fe9182e84b1b16df768a16077766e85942a9d1aa"
+                        wallet_addr:
+                          type: string
+                          description: Wallet address
+                          example: "bc1prtrpwzwvys7n3unp4pj0ayvzap93k9klw69pvpmhvm59js4f6x4qy70yt8"
+                        rune_id:
+                          type: string
+                          description: Rune ID
+                          example: "840000:453"
+                        amount:
+                          type: string
+                          description: Amount
+                          example: "6666"
+                        block_height:
+                          type: integer
+                          description: Block height
+                          example: 840163
+                        block_timestamp:
+                          type: string
+                          format: date-time
+                          description: Block timestamp
+                          example: "2024-04-21T05:48:31.000Z"
+                        rune_name:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "ORDINALSAREDEAD"
+                        spaced_rune_name:
+                          type: string
+                          description: Spaced Rune name
+                          example: "ORDINALS•ARE•DEAD"
+                        decimals:
+                          type: integer
+                          description: Decimals
+                          example: 0
+                        sale_info:
+                          type: object
+                          nullable: true
+                          description: Sale information
+                          properties:
+                            sale_price:
+                              type: integer
+                              description: Price in satoshis
+                              example: 79992
+                            sold_to_pkscript:
+                              type: string
+                              description: Buyer script pub key
+                              example: "0014878ff1580d7ceedcd97e1b3cfa7cc0feef2b8f4d"
+                            sold_to_wallet_addr:
+                              type: string
+                              description: Buyer wallet address
+                              example: "bc1qs78lzkqd0nhdekt7rv705lxqlmhjhr6dggcdr4"
+                            marketplace:
+                              type: string
+                              description: Marketplace
+                              example: "okx"
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 2585298
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/all_id_name_pairs:
+    get:
+      summary: Runes All ID Name Pairs
+      description: Returns all runes id-name pairs. If send_urls is set to true, icon content and render URLs will also be returned.
+      operationId: getRunesAllIdNamePairs
+      tags:
+        - Runes
+      parameters:
+        - name: send_urls
+          in: query
+          description: Whether to include icon URLs
+          required: false
+          schema:
+            type: string
+            enum: [true, false]
+            example: false
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        i:
+                          type: string
+                          description: Rune ID
+                          example: "840076:2046"
+                        n:
+                          type: string
+                          description: Non-spaced Rune name
+                          example: "HONEYBADGERDONTCARE"
+                        sn:
+                          type: string
+                          description: Spaced Rune name
+                          example: "HONEY•BADGER•DONT•CARE"
+                        r:
+                          type: boolean
+                          description: Whether render is available (only if send_urls=true)
+                        ic:
+                          type: string
+                          description: Icon content reference (only if send_urls=true)
+                  render_prefix:
+                    type: string
+                    description: Prefix for render URLs (only if send_urls=true)
+                  render_suffix:
+                    type: string
+                    description: Suffix for render URLs (only if send_urls=true)
+                  content_prefix:
+                    type: string
+                    description: Prefix for content URLs (only if send_urls=true)
+                  content_suffix:
+                    type: string
+                    description: Suffix for content URLs (only if send_urls=true)
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 862525
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
+          
+  /runes/historical_prices:
+    get:
+      summary: Runes Historical Prices
+      description: Returns all historical prices for selected rune. If granularity is set to 1d, it'll return the average price for the day.
+      operationId: getRunesHistoricalPrices
+      tags:
+        - Runes
+      parameters:
+        - name: rune_name
+          in: query
+          description: Non-Spaced name of Rune
+          required: false
+          schema:
+            type: string
+            example: UNCOMMONGOODS
+        - name: rune_id
+          in: query
+          description: Rune ID
+          required: false
+          schema:
+            type: string
+            example: 1:0
+        - name: rune_number
+          in: query
+          description: Rune Number
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          required: true
+          schema:
+            type: string
+            enum: [ts]
+            example: ts
+        - name: order
+          in: query
+          description: Sort order
+          required: true
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: count
+          in: query
+          description: Number of results to return
+          required: true
+          schema:
+            type: integer
+            minimum: 20
+            maximum: 2000
+            example: 2000
+        - name: granularity
+          in: query
+          description: Time granularity
+          required: false
+          schema:
+            type: string
+            enum: [1h, 1d]
+            example: 1h
+      responses:
+        '200':
+          description: OK Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                          description: Timestamp
+                          example: "2024-09-23T13:00:00.000Z"
+                        price:
+                          type: number
+                          description: Average price during the period
+                          example: 230.664
+                        volume:
+                          type: integer
+                          description: Volume during the period
+                          example: 119296
+                  block_height:
+                    type: integer
+                    description: Current block height
+                    example: 862525
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+        '403':
+          description: Forbidden - Invalid API-Key
